@@ -47,6 +47,7 @@ app.use('/uploads', express.static('uploads'));
 const db = new sqlite3.Database('projects.db');
 
 // Crear tabla de proyectos si no existe
+// Crear tabla de proyectos si no existe y añadir datos por defecto
 db.serialize(() => {
   db.run(`CREATE TABLE IF NOT EXISTS projects (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -54,8 +55,45 @@ db.serialize(() => {
     descripcion TEXT NOT NULL,
     enlace TEXT,
     imagen TEXT
-  )`);
+  )`, (err) => {
+    if (err) {
+      console.error('Error al crear la tabla de proyectos:', err.message);
+      return;
+    }
+
+    // Insertar proyectos por defecto si no existen
+    const sql = 'SELECT COUNT(*) AS count FROM projects';
+    db.get(sql, (err, row) => {
+      if (err) {
+        console.error('Error al verificar proyectos:', err.message);
+        return;
+      }
+
+      if (row.count === 0) {
+        const defaultProjects = [
+          { nombre: 'Optimización', descripcion: 'Biblioteca en Python con algoritmos unidimensionales, multidimensionales y programación dinámica.', enlace: 'https://github.com/lucasmr19/Optimization', imagen: 'uploads/opt.png' },
+          { nombre: 'Sistema reserva de vuelos', descripcion: 'Diseñado en Java utilizando programación orientada a objetos.', enlace: 'https://github.com/lucasmr19/FlightBookingSystem', imagen: 'uploads/plane.jpg' },
+          { nombre: 'Maldición de la dimensión', descripcion: 'Análisis de un dataset sobre la fuga de clientes seleccionando variables influyentes.', enlace: 'https://github.com/lucasmr19/Machine-Learning/blob/main/Curse%20of%20dimensionality/Dimensionality_example.ipynb'},
+        ];
+
+        const insertSql = 'INSERT INTO projects (nombre, descripcion, enlace, imagen) VALUES (?, ?, ?, ?)';
+        defaultProjects.forEach((project) => {
+          db.run(insertSql, [project.nombre, project.descripcion, project.enlace, project.imagen], (err) => {
+            if (err) {
+              console.error('Error al insertar proyecto por defecto:', err.message);
+            } else {
+              console.log(`Proyecto "${project.nombre}" insertado por defecto.`);
+            }
+          });
+        });
+      } else {
+        console.log('Proyectos ya existen en la base de datos.');
+      }
+    });
+  });
 });
+
+
 
 // Endpoint para obtener proyectos (sin autenticación)
 app.get('/projects', (req, res) => {
