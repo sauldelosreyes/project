@@ -123,10 +123,6 @@ app.post('/projects', verifyToken, upload.single('imagen'), (req, res) => {
   });
 });
 
-// Iniciar el servidor
-app.listen(port, () => {
-  console.log(`Servidor escuchando en http://localhost:${port}`);
-});
 
 // Endpoint para actualizar un proyecto (requiere autenticación)
 app.put('/projects/:id', verifyToken, upload.single('imagen'), (req, res) => {
