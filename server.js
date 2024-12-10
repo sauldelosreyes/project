@@ -9,8 +9,11 @@ const path = require('path');
 const cors = require('cors');
 const jwt = require('jsonwebtoken');
 
-const app = express();
-const port = 3000;
+const port = process.env.PORT || 4000;
+
+app.listen(port, () => {
+  console.log(`Example app listening on port ${port}`)
+})
 
 // Definir la clave secreta desde las variables de entorno
 const JWT_SECRET = process.env.JWT_SECRET;
