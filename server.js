@@ -9,6 +9,8 @@ const path = require('path');
 const cors = require('cors');
 const jwt = require('jsonwebtoken');
 
+const app = express()
+
 const port = process.env.PORT || 4000;
 
 app.listen(port, () => {
